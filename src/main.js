@@ -23,13 +23,24 @@ const LS_KEY = 'login-data';
 
 const loginForm = document.querySelector('.login-form');
 const loginBtn = document.querySelector('.login-btn');
+const emailInput = document.querySelector('[name="email"]');
+const passwordInput = document.querySelector('[name="password"]');
 
 loginForm.addEventListener('submit', event => {
   event.preventDefault();
+
   const { email, password } = event.target.elements;
   console.log(email);
   const emailValue = email.value.trim();
   const passwordlValue = password.value.trim();
+  if (loginBtn.textContent === 'Logout') {
+    localStorage.removeItem(LS_KEY);
+    loginForm.reset();
+    email.removeAttribute('readonly');
+    password.removeAttribute('readonly');
+    loginBtn.textContent = 'Login';
+    return;
+  }
   if (emailValue === '' || passwordlValue === '') {
     iziToast.warning({
       title: 'Caution',
@@ -46,7 +57,11 @@ loginForm.addEventListener('submit', event => {
     });
     return;
   }
-
+  iziToast.success({
+    title: 'Success',
+    message: 'Welcome',
+    iconUrl: icon,
+  });
   localStorage.setItem(
     LS_KEY,
     JSON.stringify({ email: emailValue, password: passwordlValue })
@@ -55,3 +70,13 @@ loginForm.addEventListener('submit', event => {
   email.setAttribute('readonly', true);
   password.setAttribute('readonly', true);
 });
+
+const savedData = localStorage.getItem(LS_KEY);
+if (savedData) {
+  const parsedData = JSON.parse(savedData);
+  emailInput.value = parsedData.email || '';
+  passwordInput.value = parsedData.password || '';
+  loginBtn.textContent = 'Logout';
+  emailInput.setAttribute('readonly', true);
+  passwordInput.setAttribute('readonly', true);
+}
